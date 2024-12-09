@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #faf8ef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        h1 {
+            font-size: 50px;
+            margin: 0;
+            text-align: center;
+            color: #776e65;
+        }
+
+        #gameContainer {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+            background-color: #bbada0;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .tile {
+            width: 100px;
+            height: 100px;
+            background-color: #ccc0b3;
+            font-size: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            color: #776e65;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .tile-2 {
+            background-color: #eee4da;
+        }
+
+        .tile-4 {
+            background-color: #ece0c8;
+        }
+
+        .tile-8 {
+            background-color: #f2b179;
+        }
+
+        .tile-16 {
+            background-color: #f59563;
+        }
+
+        .tile-32 {
+            background-color: #f67c5f;
+        }
+
+        .tile-64 {
+            background-color: #f65e3b;
+        }
+
+        .tile-128 {
+            background-color: #edcf72;
+            color: white;
+        }
+
+        .tile-256 {
+            background-color: #edcc61;
+            color: white;
+        }
+
+        .tile-512 {
+            background-color: #edc850;
+            color: white;
+        }
+
+        .tile-1024 {
+            background-color: #edc53f;
+            color: white;
+        }
+
+        .tile-2048 {
+            background-color: #edc22e;
+            color: white;
+        }
+
+        .game-info {
+            margin-bottom: 20px;
+        }
+
+        #score {
+            font-size: 30px;
+            color: #776e65;
+        }
+
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #8f7a66;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #776e65;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>2048 Game</h1>
+    <div class="game-info">
+        <div id="score">Score: 0</div>
+        <button class="button" onclick="startGame()">Restart Game</button>
+    </div>
+    <div id="gameContainer"></div>
+
+    <script>
+        const boardSize = 4;
+        let board, score, gameOver;
+        let scoreText = document.getElementById("score");
+        let gameContainer = document.getElementById("gameContainer");
+
+        // Directions for moving
+        const directions = {
+            'ArrowUp': { x: 0, y: -1 },
+            'ArrowDown': { x: 0, y: 1 },
+            'ArrowLeft': { x: -1, y: 0 },
+            'ArrowRight': { x: 1, y: 0 }
+        };
+
+        function startGame() {
+            board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
+            score = 0;
+            gameOver = false;
+            updateBoard();
+            spawnNewTile();
+            spawnNewTile();
+        }
+
+        function spawnNewTile() {
+            if (gameOver) return;
+
+            let emptyCells = [];
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (board[row][col] === 0) {
+                        emptyCells.push({ row, col });
+                    }
+                }
+            }
+
+            if (emptyCells.length > 0) {
+                let { row, col } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                board[row][col] = Math.random() < 0.9 ? 2 : 4;
+                updateBoard();
+            }
+
+            checkGameOver();
+        }
+
+        function updateBoard() {
+            gameContainer.innerHTML = '';
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    let tileValue = board[row][col];
+                    let tile = document.createElement('div');
+                    tile.classList.add('tile');
+                    tile.classList.add(`tile-${tileValue}`);
+                    tile.textContent = tileValue ? tileValue : '';
+                    gameContainer.appendChild(tile);
+                }
+            }
+            scoreText.textContent = `Score: ${score}`;
+        }
+
+        function checkGameOver() {
+            // Check if there are any empty cells or possible moves
+            let emptyCells = board.some(row => row.includes(0));
+            if (emptyCells) return;
+
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    let value = board[row][col];
+                    if (
+                        (row < boardSize - 1 && value === board[row + 1][col]) || // Check down
+                        (col < boardSize - 1 && value === board[row][col + 1]) // Check right
+                    ) {
+                        return;
+                    }
+                }
+            }
+            gameOver = true;
+            alert(`Game Over! Final Score: ${score}`);
+        }
+
+        function move(direction) {
+            if (gameOver) return;
+
+            let moved = false;
+
+            const slideAndCombine = (line) => {
+                let nonZero = line.filter(value => value !== 0);
+                let newLine = [];
+                let merged = false;
+
+                for (let i = 0; i < nonZero.length; i++) {
+                    if (nonZero[i] === nonZero[i + 1] && !merged) {
+                        newLine.push(nonZero[i] * 2);
+                        score += nonZero[i] * 2;
+                        i++; 
+                        merged = true;
+                    } else {
+                        newLine.push(nonZero[i]);
+                        merged = false;
+                    }
+                }
+
+                while (newLine.length < boardSize) {
+                    newLine.push(0);
+                }
+
+                return newLine;
+            };
+
+            if (direction.x === 0) {
+                for (let col = 0; col < boardSize; col++) {
+                    let column = [];
+                    for (let row = 0; row < boardSize; row++) {
+                        column.push(board[row][col]);
+                    }
+                    let newColumn = direction.y === -1 ? slideAndCombine(column) : slideAndCombine(column.reverse()).reverse();
+                    for (let row = 0; row < boardSize; row++) {
+                        if (board[row][col] !== newColumn[row]) {
+                            moved = true;
+                        }
+                        board[row][col] = newColumn[row];
+                    }
+                }
+            } else {
+                for (let row = 0; row < boardSize; row++) {
+                    let line = board[row];
+                    let newLine = direction.x === -1 ? slideAndCombine(line) : slideAndCombine(line.reverse()).reverse();
+                    if (line.some((value, index) => value !== newLine[index])) {
+                        moved = true;
+                    }
+                    board[row] = newLine;
+                }
+            }
+
+            if (moved) {
+                spawnNewTile();
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (gameOver) return;
+
+            switch (e.key) {
+                case 'ArrowUp':
+                case 'ArrowDown':
+                case 'ArrowLeft':
+                case 'ArrowRight':
+                    move(directions[e.key]);
+                    break;
+            }
+        });
+
+        startGame();
+    </script>
+</body>
+</html>
