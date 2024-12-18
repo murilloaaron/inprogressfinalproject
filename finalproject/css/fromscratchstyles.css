@@ -1,0 +1,62 @@
+body{
+    background-color: antiquewhite;
+    font-family: 'Times New Roman', Times, serif;
+}
+h1, h2, h3, h3, h4, h5, h6{
+    color:brown;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+.title {
+    position: relative; /* Enables positioning of child elements */
+    border: 2px solid red;
+    padding: 10px;
+    display: inline-block;
+    border-radius: 5px;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+.list-item {
+    display: flex; /* Aligns text and image side by side */
+    justify-content: space-between; /* Space between text and image */
+    align-items: flex-start; /* Aligns the top of the text and image */
+    gap: 20px; /* Adds space between text and image */
+}
+
+.text {
+    flex: 1; /* Ensures the text takes up available space */
+}
+
+.image img {
+    width: 300px; /* Set image width */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 5px; /* Optional: Rounded corners */
+    border: 2px solid brown; /* Optional: Border */
+}
+.top-right-link {
+    position: absolute; /* Position relative to the .title container */
+    top: 5px; /* Distance from the top edge */
+    right: 10px; /* Distance from the right edge */
+    font-size: 14px; /* Adjust font size */
+    color: blue; /* Link color */
+    text-decoration: none; /* Remove underline */
+}
+
+.top-right-link:hover {
+    text-decoration: underline; /* Add underline on hover */
+    color: darkblue; /* Change color on hover */
+}
+.bottom-right-link {
+    position: absolute; /* Position the link absolutely inside the title */
+    bottom: 5px; /* 5px from the bottom */
+    right: 5px; /* 5px from the right */
+    font-size: 14px;
+    color: blue;
+    text-decoration: none;
+}
+
+.bottom-right-link:hover {
+    text-decoration: underline; /* Add hover effect */
+}
